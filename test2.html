@@ -1,0 +1,1982 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- PWA配置 -->
+    <link rel="manifest" href="data:application/json,{
+        &quot;name&quot;: &quot;积分管理&quot;,
+        &quot;short_name&quot;: &quot;积分管理&quot;,
+        &quot;start_url&quot;: &quot;.&quot;,
+        &quot;display&quot;: &quot;standalone&quot;,
+        &quot;background_color&quot;: &quot;#4682B4&quot;,
+        &quot;theme_color&quot;: &quot;#4682B4&quot;,
+        &quot;icons&quot;: [{
+            &quot;src&quot;: &quot;data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiI+PHBhdGggZmlsbD0iI2ZmZiIgZD0iTTI1NiA0OEMxNDEuNiA0OCA0OCAxNDEuNiA0OCAyNTZzOTMuNiAyMDggMjA4IDIwOCAyMDgtOTMuNiAyMDgtMjA4UzM3MC40IDQ4IDI1NiA0OHptMCAzODRjLTk3LjIgMC0xNzYtNzguOC0xNzYtMTc2czc4LjgtMTc2IDE3Ni0xNzZzMTc2IDc4LjggMTc2IDE3Ni03OC44IDE3Ni0xNzYgMTc2eiIvPjxwYXRoIGZpbGw9IiMwMDcyYjQiIGQ9Ik0yODggMTc2aC02NHY2NGg2NHY2NGgtNjR2NjRoNjR2NjRoLTY0djY0aDY0djY0aC02NHY2NGg2NHY2NGgtNjR2NjRoNjRjNTIuOSAwIDk2LTQzLjEgOTYtOTZWMTcyYzAtNTIuOS00My4xLTk2LTk2LTk2eiIvPjwvc3ZnPg==&quot;,
+            &quot;sizes&quot;: &quot;192x192&quot;,
+            &quot;type&quot;: &quot;image/svg+xml&quot;
+        }]
+    }">
+
+    <meta name="theme-color" content="#4682B4">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+    <title>呆呆BABY积分管理系统</title>
+
+    <!-- 外部图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #87CEEB;
+            --primary-light: #B0E2FF;
+            --primary-dark: #5F9EA0;
+            --secondary-color: #FFB6C1;
+            --accent-color: #20B2AA;
+            --accent2-color: #FF6B6B;
+            --text-color: #333;
+            --light-bg: rgba(240, 248, 255, 0.95);
+            --white: #FFFFFF;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            --user1-color: #4682B4;
+            --user2-color: #FF69B4;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+            background: linear-gradient(135deg, #1e3c72, #2a5298, #4a90e2, #87CEEB, #B0E2FF);
+            background-size: 400% 400%;
+            animation: oceanWave 15s ease infinite;
+        }
+
+        @keyframes oceanWave {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 25px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 登录页面样式 */
+        .login-page {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: var(--light-bg);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .login-container h1 {
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+
+        .login-container p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .login-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .login-tab {
+            flex: 1;
+            padding: 15px;
+            background: none;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .login-tab.active {
+            color: var(--secondary-color);
+            border-bottom-color: var(--secondary-color);
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            text-align: left;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: var(--secondary-color);
+            font-size: 14px;
+        }
+
+        input, select, textarea {
+            padding: 14px 18px;
+            border: 2px solid rgba(176, 226, 255, 0.5);
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(135, 206, 235, 0.3);
+            background: white;
+        }
+
+        .btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            box-shadow: 0 4px 15px rgba(70, 130, 180, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(70, 130, 180, 0.4);
+        }
+
+        /* 用户权限提示 */
+        .permission-info {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .permission-info ul {
+            text-align: left;
+            margin-top: 10px;
+            padding-left: 20px;
+        }
+
+        .permission-info li {
+            margin-bottom: 5px;
+        }
+
+        /* 主界面样式 */
+        .main-page {
+            display: none;
+        }
+
+        header {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 25px;
+            background: linear-gradient(135deg, rgba(70, 130, 180, 0.9), rgba(32, 178, 170, 0.9));
+            color: white;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+        }
+
+        .user-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+        }
+
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .user-a-avatar {
+            background: linear-gradient(135deg, var(--user1-color), #2a5298);
+        }
+
+        .user-b-avatar {
+            background: linear-gradient(135deg, #FF69B4, #FF1493);
+        }
+
+        .user-permission-badge {
+            background: rgba(255, 255, 255, 0.3);
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .card {
+            background-color: var(--light-bg);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            height: fit-content;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        h2 {
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--primary-light);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2 i {
+            font-size: 24px;
+        }
+
+        /* 日历样式 */
+        .calendar {
+            min-height: 400px;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 0 10px;
+        }
+
+        .calendar-header button {
+            background-color: var(--primary-color);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .calendar-header button:hover {
+            background-color: var(--secondary-color);
+            transform: scale(1.1);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .calendar-day {
+            text-align: center;
+            font-weight: bold;
+            color: var(--secondary-color);
+            padding: 12px 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+        }
+
+        .calendar-date {
+            text-align: center;
+            padding: 14px 0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: 500;
+        }
+
+        .calendar-date:hover {
+            background-color: rgba(135, 206, 235, 0.3);
+            transform: scale(1.05);
+        }
+
+        .calendar-date.active {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            box-shadow: 0 4px 15px rgba(70, 130, 180, 0.4);
+        }
+
+        .calendar-date.has-points {
+            position: relative;
+        }
+
+        .calendar-date.has-points::after {
+            content: '';
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            box-shadow: 0 0 5px var(--accent-color);
+        }
+
+        /* 积分操作区域 */
+        .points-operation {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .current-points {
+            text-align: center;
+            background: linear-gradient(135deg, rgba(70, 130, 180, 0.9), rgba(32, 178, 170, 0.9));
+            padding: 30px;
+            border-radius: 20px;
+            color: white;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .points-value {
+            font-size: 72px;
+            font-weight: bold;
+            margin: 15px 0;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .points-label {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .add-points, .exchange-points, .deduct-points {
+            min-height: 280px;
+        }
+
+        .operation-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--accent-color), #1a928a);
+            color: white;
+            box-shadow: 0 4px 15px rgba(32, 178, 170, 0.3);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(32, 178, 170, 0.4);
+        }
+
+        .btn-add-reward {
+            background: linear-gradient(135deg, var(--accent2-color), #C62828);
+            color: white;
+            margin-top: 15px;
+        }
+
+        /* 自定义奖励区域 */
+        .custom-rewards {
+            margin-top: 20px;
+        }
+
+        .add-reward-form {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .add-reward-form.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .reward-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            border-left: 5px solid var(--accent-color);
+            transition: all 0.3s;
+            margin-bottom: 15px;
+        }
+
+        .reward-item:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: translateX(5px);
+        }
+
+        .reward-info h4 {
+            color: var(--secondary-color);
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+
+        .reward-info p {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .reward-cost {
+            font-weight: bold;
+            color: var(--accent-color);
+            font-size: 22px;
+            margin-right: 15px;
+        }
+
+        /* 统计图表区域 */
+        .chart-container {
+            height: 400px;
+            position: relative;
+        }
+
+        .points-history {
+            margin-top: 25px;
+            max-height: 350px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(176, 226, 255, 0.5);
+            transition: all 0.3s;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .history-item:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: translateX(5px);
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-type {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .history-type i {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            color: white;
+            font-size: 16px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+        }
+
+        .add i {
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+        }
+
+        .deduct i {
+            background: linear-gradient(135deg, #FF9800, #EF6C00);
+        }
+
+        .exchange i {
+            background: linear-gradient(135deg, #F44336, #C62828);
+        }
+
+        .history-points.add {
+            color: #2E7D32;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .history-points.deduct {
+            color: #EF6C00;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .history-points.exchange {
+            color: #C62828;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        /* 操作按钮 */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-action {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .btn-edit {
+            background: linear-gradient(135deg, #2196F3, #0D47A1);
+            color: white;
+        }
+
+        .btn-delete {
+            background: linear-gradient(135deg, #FF5252, #C62828);
+            color: white;
+        }
+
+        .btn-action:hover {
+            transform: scale(1.15);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        /* 编辑对话框样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            width: 95%;
+            max-width: 500px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+            animation: modalAppear 0.3s ease-out;
+        }
+
+        @keyframes modalAppear {
+            from {
+                opacity: 0;
+                transform: translateY(-30px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* 禁用状态 */
+        .disabled {
+            opacity: 0.5;
+            pointer-events: none;
+            cursor: not-allowed;
+        }
+
+        .disabled-reason {
+            background: rgba(255, 87, 87, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #ff5757;
+            text-align: center;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .container {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .calendar {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .calendar-grid {
+                grid-template-columns: repeat(7, 1fr);
+            }
+
+            .points-value {
+                font-size: 56px;
+            }
+
+            .history-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .history-item > div:last-child {
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .user-controls {
+                position: relative;
+                top: 0;
+                right: 0;
+                margin-top: 10px;
+                justify-content: center;
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: var(--primary-light);
+        }
+
+        /* 滚动条美化 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(176, 226, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-dark));
+        }
+    </style>
+</head>
+<body>
+    <!-- 登录页面 -->
+    <div class="login-page" id="login-page">
+        <div class="login-container">
+            <h1><i class="fas fa-star"></i> 呆呆BABY积分管理系统</h1>
+            <p>请选择账户登录</p>
+
+            <div class="login-tabs">
+                <button class="login-tab active" data-tab="userA">daddy</button>
+                <button class="login-tab" data-tab="userB">baby</button>
+            </div>
+
+            <div class="login-form" id="userA-form">
+                <div class="form-group">
+                    <label for="userA-password">密码</label>
+                    <input type="password" id="userA-password" placeholder="请输入密码(tip:baby+生日)" value="baby0823">
+                </div>
+
+                <div class="permission-info">
+                    <strong>DADDY权限：</strong>
+                    <ul>
+                        <li>添加/扣除积分</li>
+                        <li>兑换奖励</li>
+                        <li>管理自定义奖励</li>
+                        <li>编辑/删除记录</li>
+                        <li>查看所有统计</li>
+                    </ul>
+                </div>
+
+                <button class="btn btn-primary" id="login-userA">
+                    <i class="fas fa-sign-in-alt"></i> 登录账户A
+                </button>
+            </div>
+
+            <div class="login-form" id="userB-form" style="display: none;">
+                <div class="form-group">
+                    <label for="userB-password">密码</label>
+                    <input type="password" id="userB-password" placeholder="请输入密码（默认：123）" value="123">
+                </div>
+
+                <div class="permission-info">
+                    <strong>BABY权限：</strong>
+                    <ul>
+                        <li>仅可兑换奖励</li>
+                        <li>查看积分和统计</li>
+                        <li>不可添加/扣除积分</li>
+                        <li>不可编辑/删除记录</li>
+                    </ul>
+                </div>
+
+                <button class="btn btn-primary" id="login-userB">
+                    <i class="fas fa-sign-in-alt"></i> 登录账户B
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主页面 -->
+    <div class="main-page" id="main-page">
+        <div class="container">
+            <header>
+                <h1><i class="fas fa-star"></i> 🎆呆呆BABY积分管理系统🎇</h1>
+                <div class="user-controls">
+                    <div class="user-info">
+                        <div class="user-avatar" id="current-user-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <div id="current-user-name">账户A</div>
+                            <div class="user-permission-badge" id="user-permission">daddy</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary" id="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i> 退出
+                    </button>
+                </div>
+            </header>
+
+            <!-- 左侧日历 -->
+            <div class="card calendar">
+                <h2><i class="fas fa-calendar-alt"></i> 日历</h2>
+                <div class="calendar-header">
+                    <button id="prev-month"><i class="fas fa-chevron-left"></i></button>
+                    <h3 id="current-month">2025年12月</h3>
+                    <button id="next-month"><i class="fas fa-chevron-right"></i></button>
+                </div>
+                <div class="calendar-grid">
+                    <div class="calendar-day">日</div>
+                    <div class="calendar-day">一</div>
+                    <div class="calendar-day">二</div>
+                    <div class="calendar-day">三</div>
+                    <div class="calendar-day">四</div>
+                    <div class="calendar-day">五</div>
+                    <div class="calendar-day">六</div>
+                    <!-- 日历日期将由JavaScript动态生成 -->
+                </div>
+            </div>
+
+            <!-- 中间积分操作 -->
+            <div class="points-operation">
+                <div class="current-points">
+                    <div class="points-label">当前积分</div>
+                    <div class="points-value" id="total-points">118</div>
+                    <div class="points-label" id="month-summary">本月获得：+118 | 本月兑换：-0</div>
+                </div>
+
+                <div class="card add-points" id="add-points-card">
+                    <h2><i class="fas fa-plus-circle"></i> 增加积分</h2>
+                    <form class="operation-form" id="add-form">
+                        <div class="form-group">
+                            <label for="add-reason">加分理由</label>
+                            <select id="add-reason">
+                                <option value="daily_exercise">每日锻炼🦾🦾</option>
+                                <option value="reading">阅读学习📓📓</option>
+                                <option value="work_completed">工作完成👍👍</option>
+                                <option value="skill_learning">技能学习🏅👩‍🎓</option>
+                                <option value="good_habit">良好习惯⏰⏰</option>
+                                <option value="other">其他</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="add-description">详细描述</label>
+                            <textarea id="add-description" placeholder="描述您完成的事项..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="add-points">积分值</label>
+                            <input type="number" id="add-points" min="1" max="1000" value="10">
+                        </div>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> 添加积分</button>
+                    </form>
+                    <div class="disabled-reason" id="add-disabled-reason" style="display: none;">
+                        账户B仅可兑换奖励，无法添加积分
+                    </div>
+                </div>
+
+                <div class="card deduct-points" id="deduct-points-card">
+                    <h2><i class="fas fa-minus-circle"></i> 减少积分</h2>
+                    <form class="operation-form" id="deduct-form">
+                        <div class="form-group">
+                            <label for="deduct-reason">扣分理由</label>
+                            <select id="deduct-reason">
+                                <option value="late_wakeup">晚起赖床😴😴</option>
+                                <option value="over_spending">过度消费💰💰</option>
+                                <option value="unhealthy_food">不健康饮食🍔🍟</option>
+                                <option value="procrastination">拖延任务⏳⏳</option>
+                                <option value="screen_time">屏幕时间过长📱💻</option>
+                                <option value="other">其他</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="deduct-description">详细描述</label>
+                            <textarea id="deduct-description" placeholder="描述需要改进的事项..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="deduct-points">扣除积分</label>
+                            <input type="number" id="deduct-points" min="1" max="1000" value="5">
+                        </div>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-minus"></i> 扣除积分</button>
+                    </form>
+                    <div class="disabled-reason" id="deduct-disabled-reason" style="display: none;">
+                        账户B仅可兑换奖励，无法扣除积分
+                    </div>
+                </div>
+
+                <div class="card exchange-points">
+                    <h2><i class="fas fa-gift"></i> 积分兑换</h2>
+
+                    <div id="reward-management">
+                        <button class="btn btn-add-reward" id="show-reward-form">
+                            <i class="fas fa-plus"></i> 添加自定义奖励
+                        </button>
+
+                        <div class="add-reward-form" id="add-reward-form">
+                            <div class="form-group">
+                                <label>奖励名称</label>
+                                <input type="text" id="reward-name" placeholder="例如：电影票、美食券等">
+                            </div>
+                            <div class="form-group">
+                                <label>奖励描述</label>
+                                <textarea id="reward-description" placeholder="描述这个奖励..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>所需积分</label>
+                                <input type="number" id="reward-cost" min="1" max="10000" value="100">
+                            </div>
+                            <button class="btn btn-secondary" id="add-custom-reward">
+                                <i class="fas fa-plus"></i> 添加奖励
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="rewards" id="rewards-list">
+                        <!-- 奖励列表将由JavaScript动态生成 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧统计图表 -->
+            <div class="card">
+                <h2><i class="fas fa-chart-line"></i> 积分统计</h2>
+                <div class="chart-container">
+                    <canvas id="pointsChart"></canvas>
+                </div>
+
+                <h2 style="margin-top: 30px;"><i class="fas fa-history"></i> 最近记录</h2>
+                <div class="points-history" id="points-history">
+                    <!-- 历史记录将由JavaScript动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let currentUser = 'userA';
+        let currentDate = new Date();
+        let pointsHistory = [];
+        let chartInstance = null;
+
+        // 默认的积分记录数据
+        const defaultHistory = [
+            { date: '2025-12-19', type: 'add', reason: '每日锻炼', description: '完成锻炼要求', points: 10 },
+            { date: '2025-12-20', type: 'add', reason: '每日锻炼', description: '完成锻炼要求', points: 15 },
+            { date: '2025-12-21', type: 'deduct', reason: '每日锻炼', description: '未完成锻炼要求', points: -5 },
+            { date: '2025-12-22', type: 'add', reason: '每日锻炼', description: '完成锻炼要求', points: 10 },
+            { date: '2025-12-23', type: 'add', reason: '每日锻炼', description: '完成锻炼要求', points: 15 },
+            { date: '2025-12-24', type: 'add', reason: '每日锻炼', description: '完成锻炼要求', points: 10 },
+            { date: '2025-12-27', type: 'add', reason: '每日锻炼', description: '完成锻炼要求', points: 10 },
+            { date: '2025-12-28', type: 'add', reason: '每日锻炼', description: '完成锻炼要求', points: 10 },
+            { date: '2025-12-29', type: 'add', reason: '每日锻炼', description: '完成锻炼要求', points: 10 },
+            { date: '2025-12-30', type: 'add', reason: '每日锻炼', description: '完成锻炼要求', points: 10 },
+            { date: '2025-12-31', type: 'add', reason: '每日锻炼', description: '完成锻炼要求', points: 10 },
+            { date: '2026-01-01', type: 'add', reason: '每日锻炼', description: '完成新年第一天锻炼要求', points: 15 },
+        ];
+
+        // 用户密码配置
+        const userConfig = {
+            userA: {
+                name: '账户A',
+                password: 'baby0823',
+                permission: 'daddy',
+                permissions: {
+                    canAddPoints: true,
+                    canDeductPoints: true,
+                    canExchange: true,
+                    canManageRewards: true,
+                    canEditDelete: true
+                }
+            },
+            userB: {
+                name: '账户B',
+                password: '123',
+                permission: 'baby',
+                permissions: {
+                    canAddPoints: false,
+                    canDeductPoints: false,
+                    canExchange: true,
+                    canManageRewards: false,
+                    canEditDelete: false
+                }
+            }
+        };
+
+        // 保存数据到localStorage
+        function saveData() {
+            try {
+                localStorage.setItem('totalPoints', totalPoints);
+                localStorage.setItem('pointsHistory', JSON.stringify(pointsHistory));
+                localStorage.setItem('lastSaveTime', new Date().toISOString());
+                localStorage.setItem('currentUser', currentUser);
+                console.log('数据已保存');
+            } catch (e) {
+                console.error('保存失败', e);
+            }
+        }
+
+        // 从localStorage加载数据
+        function loadData() {
+            try {
+                const savedPoints = localStorage.getItem('totalPoints');
+                const savedHistory = localStorage.getItem('pointsHistory');
+
+                if (savedPoints) {
+                    totalPoints = parseInt(savedPoints);
+                    console.log('加载总积分:', totalPoints);
+                }
+
+                if (savedHistory) {
+                    pointsHistory = JSON.parse(savedHistory);
+                    console.log('加载历史记录:', pointsHistory.length, '条');
+                } else {
+                    // 如果没有保存的数据，使用默认数据
+                    pointsHistory = JSON.parse(JSON.stringify(defaultHistory));
+                    // 计算初始总积分
+                    totalPoints = calculateTotalPoints(pointsHistory);
+                }
+
+                // 加载当前用户
+                const savedUser = localStorage.getItem('currentUser');
+                if (savedUser && userConfig[savedUser]) {
+                    currentUser = savedUser;
+                }
+
+            } catch (e) {
+                console.error('加载数据失败:', e);
+                // 如果加载失败，使用默认数据
+                pointsHistory = JSON.parse(JSON.stringify(defaultHistory));
+                totalPoints = calculateTotalPoints(pointsHistory);
+            }
+        }
+
+        // 计算总积分
+        function calculateTotalPoints(history) {
+            return history.reduce((sum, record) => sum + record.points, 0);
+        }
+
+        // 登录选项卡切换
+        document.querySelectorAll('.login-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabName = this.dataset.tab;
+
+                // 更新选项卡状态
+                document.querySelectorAll('.login-tab').forEach(t => {
+                    t.classList.remove('active');
+                });
+                this.classList.add('active');
+
+                // 显示对应的登录表单
+                document.getElementById('userA-form').style.display =
+                    tabName === 'userA' ? 'block' : 'none';
+                document.getElementById('userB-form').style.display =
+                    tabName === 'userB' ? 'block' : 'none';
+            });
+        });
+
+        // 账户A登录
+        document.getElementById('login-userA').addEventListener('click', function() {
+            const password = document.getElementById('userA-password').value;
+
+            if (password === userConfig.userA.password) {
+                currentUser = 'userA';
+                showMainPage();
+            } else {
+                alert('error！use correct password');
+            }
+        });
+
+        // 账户B登录
+        document.getElementById('login-userB').addEventListener('click', function() {
+            const password = document.getElementById('userB-password').value;
+
+            if (password === userConfig.userB.password) {
+                currentUser = 'userB';
+                showMainPage();
+            } else {
+                alert('error！use correct password');
+            }
+        });
+
+        // 显示主页面
+        function showMainPage() {
+            document.getElementById('login-page').style.display = 'none';
+            document.getElementById('main-page').style.display = 'block';
+
+            // 更新用户界面
+            updateUserInterface();
+            initCalendar();
+            updateChart();
+            updateTotalPoints();
+            updateHistory();
+            updateRewardsList();
+        }
+
+        // 更新用户界面权限
+        function updateUserInterface() {
+            const user = userConfig[currentUser];
+
+            // 更新用户信息显示
+            document.getElementById('current-user-name').textContent = user.name;
+            document.getElementById('user-permission').textContent = user.permission;
+
+            // 更新头像
+            const avatar = document.getElementById('current-user-avatar');
+            avatar.className = 'user-avatar ' + (currentUser === 'userA' ? 'user-a-avatar' : 'user-b-avatar');
+            avatar.innerHTML = currentUser === 'userA' ? '<i class="fas fa-user-shield"></i>' : '<i class="fas fa-user"></i>';
+
+            // 根据权限启用/禁用功能
+            const addCard = document.getElementById('add-points-card');
+            const deductCard = document.getElementById('deduct-points-card');
+            const addForm = document.getElementById('add-form');
+            const deductForm = document.getElementById('deduct-form');
+            const addDisabled = document.getElementById('add-disabled-reason');
+            const deductDisabled = document.getElementById('deduct-disabled-reason');
+            const rewardManagement = document.getElementById('reward-management');
+
+            if (user.permissions.canAddPoints) {
+                addCard.classList.remove('disabled');
+                addForm.style.display = 'block';
+                addDisabled.style.display = 'none';
+            } else {
+                addCard.classList.add('disabled');
+                addForm.style.display = 'none';
+                addDisabled.style.display = 'block';
+            }
+
+            if (user.permissions.canDeductPoints) {
+                deductCard.classList.remove('disabled');
+                deductForm.style.display = 'block';
+                deductDisabled.style.display = 'none';
+            } else {
+                deductCard.classList.add('disabled');
+                deductForm.style.display = 'none';
+                deductDisabled.style.display = 'block';
+            }
+
+            // 管理自定义奖励权限
+            if (user.permissions.canManageRewards) {
+                rewardManagement.style.display = 'block';
+            } else {
+                rewardManagement.style.display = 'none';
+            }
+        }
+
+        // 退出登录
+        document.getElementById('logout-btn').addEventListener('click', function() {
+            saveData(); // 保存当前数据
+            location.reload(); // 刷新页面返回登录界面
+        });
+
+        // 初始化日历
+        function initCalendar() {
+            const monthNames = ["一月", "二月", "三月", "四月", "五月", "六月",
+                "七月", "八月", "九月", "十月", "十一月", "十二月"];
+
+            const monthElement = document.getElementById('current-month');
+            const calendarGrid = document.querySelector('.calendar-grid');
+
+            function renderCalendar(date) {
+                // 清空日历（保留星期几标题）
+                while (calendarGrid.children.length > 7) {
+                    calendarGrid.removeChild(calendarGrid.lastChild);
+                }
+
+                // 更新月份显示
+                const year = date.getFullYear();
+                const month = date.getMonth();
+                monthElement.textContent = `${year}年${monthNames[month]}`;
+
+                // 获取当月第一天和最后一天
+                const firstDay = new Date(year, month, 1);
+                const lastDay = new Date(year, month + 1, 0);
+
+                // 计算第一天是星期几
+                const firstDayOfWeek = firstDay.getDay();
+
+                // 计算上个月最后一天
+                const prevMonthLastDay = new Date(year, month, 0).getDate();
+
+                // 添加上个月的日期
+                for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+                    const dayElement = document.createElement('div');
+                    dayElement.className = 'calendar-date';
+                    dayElement.textContent = prevMonthLastDay - i;
+                    dayElement.style.opacity = '0.5';
+                    calendarGrid.appendChild(dayElement);
+                }
+
+                // 添加当月的日期
+                const today = new Date();
+                for (let i = 1; i <= lastDay.getDate(); i++) {
+                    const dayElement = document.createElement('div');
+                    dayElement.className = 'calendar-date';
+                    dayElement.textContent = i;
+
+                    // 标记今天
+                    if (month === today.getMonth() &&
+                        year === today.getFullYear() &&
+                        i === today.getDate()) {
+                        dayElement.classList.add('active');
+                    }
+
+                    // 标记有积分记录的日期
+                    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                    if (pointsHistory.some(record => record.date === dateStr)) {
+                        dayElement.classList.add('has-points');
+                    }
+
+                    calendarGrid.appendChild(dayElement);
+                }
+
+                // 添加下个月的日期
+                const totalCells = 42; // 6行 * 7列
+                const remainingCells = totalCells - (firstDayOfWeek + lastDay.getDate());
+
+                for (let i = 1; i <= remainingCells; i++) {
+                    const dayElement = document.createElement('div');
+                    dayElement.className = 'calendar-date';
+                    dayElement.textContent = i;
+                    dayElement.style.opacity = '0.5';
+                    calendarGrid.appendChild(dayElement);
+                }
+            }
+
+            // 初始渲染
+            renderCalendar(currentDate);
+
+            // 上个月按钮事件
+            document.getElementById('prev-month').addEventListener('click', function() {
+                currentDate.setMonth(currentDate.getMonth() - 1);
+                renderCalendar(currentDate);
+            });
+
+            // 下个月按钮事件
+            document.getElementById('next-month').addEventListener('click', function() {
+                currentDate.setMonth(currentDate.getMonth() + 1);
+                renderCalendar(currentDate);
+            });
+        }
+
+        // 更新图表数据
+        function updateChart() {
+            if (pointsHistory.length === 0) {
+                // 如果没有数据，显示空图表
+                if (chartInstance) {
+                    chartInstance.data.labels = ['暂无数据'];
+                    chartInstance.data.datasets[0].data = [0];
+                    chartInstance.update();
+                }
+                return;
+            }
+
+            // 按日期分组并计算每日净积分
+            const dateMap = {};
+            pointsHistory.forEach(record => {
+                if (!dateMap[record.date]) {
+                    dateMap[record.date] = 0;
+                }
+                dateMap[record.date] += record.points;
+            });
+
+            // 转换为数组并排序
+            const datePoints = Object.entries(dateMap)
+                .map(([date, points]) => ({ date, points }))
+                .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            // 计算累计积分
+            let cumulativePoints = 0;
+            const chartData = {
+                labels: [],
+                datasets: [{
+                    label: '累计积分',
+                    data: [],
+                    borderColor: currentUser === 'userA' ? '#4682B4' : '#20B2AA',
+                    backgroundColor: currentUser === 'userA' ? 'rgba(70, 130, 180, 0.1)' : 'rgba(32, 178, 170, 0.1)',
+                    borderWidth: 3,
+                    pointBackgroundColor: currentUser === 'userA' ? '#4682B4' : '#20B2AA',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    fill: true,
+                    tension: 0.4
+                }]
+            };
+
+            datePoints.forEach(item => {
+                cumulativePoints += item.points;
+                const date = new Date(item.date);
+                chartData.labels.push(`${date.getMonth() + 1}月${date.getDate()}日`);
+                chartData.datasets[0].data.push(cumulativePoints);
+            });
+
+            // 如果图表已存在，更新它
+            if (chartInstance) {
+                chartInstance.data = chartData;
+                chartInstance.update();
+            } else {
+                // 创建新图表
+                const ctx = document.getElementById('pointsChart').getContext('2d');
+                chartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: chartData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                                ticks: { color: '#333' }
+                            },
+                            x: {
+                                grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                                ticks: { color: '#333' }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: '#333',
+                                    font: { size: 14 }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // 更新总积分显示
+        function updateTotalPoints() {
+            document.getElementById('total-points').textContent = totalPoints;
+
+            // 计算本月获得和兑换的积分
+            const currentMonth = currentDate.getMonth();
+            const currentYear = currentDate.getFullYear();
+
+            let monthEarned = 0;
+            let monthExchanged = 0;
+
+            pointsHistory.forEach(record => {
+                const recordDate = new Date(record.date);
+                if (recordDate.getMonth() === currentMonth && recordDate.getFullYear() === currentYear) {
+                    if (record.type === 'add') {
+                        monthEarned += record.points;
+                    } else if (record.type === 'exchange') {
+                        monthExchanged += Math.abs(record.points);
+                    } else if (record.type === 'deduct') {
+                        monthEarned += record.points;
+                    }
+                }
+            });
+
+            // 更新显示
+            document.getElementById('month-summary').textContent = `本月获得：+${monthEarned} | 本月兑换：-${monthExchanged}`;
+        }
+
+        // 更新历史记录显示
+        function updateHistory() {
+            const historyContainer = document.getElementById('points-history');
+            const user = userConfig[currentUser];
+
+            if (pointsHistory.length === 0) {
+                historyContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-history"></i>
+                        <p>暂无积分记录</p>
+                        <p>开始添加积分以查看历史记录</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // 按日期排序（最新的在前面）
+            const sortedHistory = [...pointsHistory].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            historyContainer.innerHTML = '';
+
+            sortedHistory.forEach((record, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.dataset.index = index;
+
+                let icon = '';
+                let typeClass = '';
+                let typeText = '';
+
+                if (record.type === 'add') {
+                    icon = '<i class="fas fa-plus"></i>';
+                    typeClass = 'add';
+                    typeText = '增加积分';
+                } else if (record.type === 'deduct') {
+                    icon = '<i class="fas fa-minus"></i>';
+                    typeClass = 'deduct';
+                    typeText = '扣除积分';
+                } else if (record.type === 'exchange') {
+                    icon = '<i class="fas fa-gift"></i>';
+                    typeClass = 'exchange';
+                    typeText = '兑换奖励';
+                }
+
+                const dateObj = new Date(record.date);
+                const formattedDate = `${dateObj.getMonth() + 1}月${dateObj.getDate()}日`;
+
+                let actionButtons = '';
+                if (user.permissions.canEditDelete) {
+                    actionButtons = `
+                        <div class="action-buttons">
+                            <button class="btn-action btn-edit" title="编辑记录">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-action btn-delete" title="删除记录">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                }
+
+                historyItem.innerHTML = `
+                    <div class="history-type ${typeClass}">
+                        ${icon}
+                        <div>
+                            <div style="font-weight: 600;">${typeText}</div>
+                            <div style="font-size: 14px; color: #666; margin-top: 4px;">${formattedDate} · ${record.reason}</div>
+                            <div style="font-size: 13px; color: #888; margin-top: 2px;">${record.description}</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div class="history-points ${typeClass}" style="font-size: 18px; font-weight: bold;">
+                            ${record.points > 0 ? '+' : ''}${record.points}
+                        </div>
+                        ${actionButtons}
+                    </div>
+                `;
+
+                historyContainer.appendChild(historyItem);
+            });
+
+            // 添加删除和编辑事件监听（如果用户有权限）
+            if (user.permissions.canEditDelete) {
+                addHistoryItemListeners();
+            }
+        }
+
+        // 添加历史记录项的监听器
+        function addHistoryItemListeners() {
+            // 删除按钮事件
+            document.querySelectorAll('.btn-delete').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const historyItem = this.closest('.history-item');
+                    const index = parseInt(historyItem.dataset.index);
+                    deleteHistoryItem(index);
+                });
+            });
+
+            // 编辑按钮事件
+            document.querySelectorAll('.btn-edit').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const historyItem = this.closest('.history-item');
+                    const index = parseInt(historyItem.dataset.index);
+                    showEditModal(index);
+                });
+            });
+        }
+
+        // 删除历史记录项
+        function deleteHistoryItem(index) {
+            const record = pointsHistory[index];
+
+            if (!confirm(`确定要删除这条记录吗？\n日期：${record.date}\n类型：${record.type === 'add' ? '增加' : record.type === 'deduct' ? '扣除' : '兑换'}\n积分：${record.points > 0 ? '+' : ''}${record.points}\n理由：${record.reason}`)) {
+                return;
+            }
+
+            // 更新总积分（反向操作）
+            totalPoints -= record.points;
+
+            // 从数组中删除
+            pointsHistory.splice(index, 1);
+
+            // 保存数据
+            saveData();
+
+            // 更新显示
+            updateTotalPoints();
+            updateHistory();
+            initCalendar();
+            updateChart();
+
+            alert('记录已删除！');
+        }
+
+        // 显示编辑模态框
+        function showEditModal(index) {
+            const record = pointsHistory[index];
+
+            // 创建模态框
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <h3 style="margin-bottom: 20px; color: #4682B4; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-edit"></i> 编辑积分记录
+                    </h3>
+
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4682B4;">日期</label>
+                        <input type="date" id="edit-date" value="${record.date}"
+                               style="width: 100%; padding: 12px; border: 2px solid #B0E2FF; border-radius: 10px; font-size: 16px;">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4682B4;">记录类型</label>
+                        <select id="edit-type"
+                                style="width: 100%; padding: 12px; border: 2px solid #B0E2FF; border-radius: 10px; font-size: 16px;">
+                            <option value="add" ${record.type === 'add' ? 'selected' : ''}>增加积分</option>
+                            <option value="deduct" ${record.type === 'deduct' ? 'selected' : ''}>扣除积分</option>
+                            <option value="exchange" ${record.type === 'exchange' ? 'selected' : ''}>兑换奖励</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4682B4;">理由</label>
+                        <input type="text" id="edit-reason" value="${record.reason}"
+                               style="width: 100%; padding: 12px; border: 2px solid #B0E2FF; border-radius: 10px; font-size: 16px;">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4682B4;">详细描述</label>
+                        <textarea id="edit-description"
+                                  style="width: 100%; padding: 12px; border: 2px solid #B0E2FF; border-radius: 10px; font-size: 16px; min-height: 100px; resize: vertical;">${record.description}</textarea>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 30px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4682B4;">积分值</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="number" id="edit-points" value="${Math.abs(record.points)}" min="1" max="1000"
+                                   style="flex: 1; padding: 12px; border: 2px solid #B0E2FF; border-radius: 10px; font-size: 16px;">
+                            <div style="font-size: 14px; color: #666;">
+                                ${record.type === 'add' ? '正数表示增加' : record.type === 'deduct' ? '正数表示扣除' : '正数表示兑换消耗'}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 15px; justify-content: flex-end;">
+                        <button id="edit-cancel"
+                                style="padding: 12px 25px; border: 2px solid #ccc; background: white; border-radius: 10px; cursor: pointer; font-weight: 600; color: #666;">
+                            取消
+                        </button>
+                        <button id="edit-save"
+                                style="padding: 12px 25px; border: none; background: linear-gradient(135deg, #4682B4, #2a5298); color: white; border-radius: 10px; cursor: pointer; font-weight: 600;">
+                            保存修改
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            // 保存按钮事件
+            document.getElementById('edit-save').addEventListener('click', function() {
+                const newDate = document.getElementById('edit-date').value;
+                const newType = document.getElementById('edit-type').value;
+                const newReason = document.getElementById('edit-reason').value.trim();
+                const newDescription = document.getElementById('edit-description').value.trim();
+                let newPoints = parseInt(document.getElementById('edit-points').value);
+
+                // 验证输入
+                if (!newDate || !newReason || isNaN(newPoints) || newPoints <= 0) {
+                    alert('请填写完整信息，且积分值必须为正数！');
+                    return;
+                }
+
+                // 根据类型设置正负值
+                if (newType === 'deduct' || newType === 'exchange') {
+                    newPoints = -newPoints;
+                }
+
+                // 先恢复原来的积分
+                totalPoints -= record.points;
+
+                // 更新记录
+                pointsHistory[index] = {
+                    date: newDate,
+                    type: newType,
+                    reason: newReason,
+                    description: newDescription || '无详细描述',
+                    points: newPoints
+                };
+
+                // 添加新的积分
+                totalPoints += newPoints;
+
+                // 保存数据
+                saveData();
+
+                // 更新显示
+                updateTotalPoints();
+                updateHistory();
+                initCalendar();
+                updateChart();
+
+                // 关闭对话框
+                document.body.removeChild(modal);
+
+                alert('记录修改成功！');
+            });
+
+            // 取消按钮事件
+            document.getElementById('edit-cancel').addEventListener('click', function() {
+                document.body.removeChild(modal);
+            });
+
+            // 点击背景关闭
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    document.body.removeChild(modal);
+                }
+            });
+        }
+
+        // 添加积分表单提交
+        document.getElementById('add-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const reasonSelect = document.getElementById('add-reason');
+            const reasonText = reasonSelect.options[reasonSelect.selectedIndex].text;
+            const description = document.getElementById('add-description').value || '无详细描述';
+            const points = parseInt(document.getElementById('add-points').value);
+
+            // 获取当前日期
+            const today = new Date();
+            const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+            // 添加到历史记录
+            pointsHistory.unshift({
+                date: dateStr,
+                type: 'add',
+                reason: reasonText,
+                description: description,
+                points: points
+            });
+
+            // 更新总积分
+            totalPoints += points;
+
+            // 保存数据
+            saveData();
+
+            // 更新显示
+            updateTotalPoints();
+            updateHistory();
+            initCalendar();
+            updateChart();
+
+            // 重置表单
+            document.getElementById('add-description').value = '';
+            document.getElementById('add-points').value = '10';
+
+            // 显示成功消息
+            alert(`成功添加 ${points} 积分！`);
+        });
+
+        // 扣除积分表单提交
+        document.getElementById('deduct-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const reasonSelect = document.getElementById('deduct-reason');
+            const reasonText = reasonSelect.options[reasonSelect.selectedIndex].text;
+            const description = document.getElementById('deduct-description').value || '无详细描述';
+            const points = parseInt(document.getElementById('deduct-points').value);
+
+            // 检查积分是否足够
+            if (totalPoints < points) {
+                alert(`积分不足！当前积分：${totalPoints}，需要扣除：${points}`);
+                return;
+            }
+
+            if (!confirm(`确定要扣除 ${points} 积分吗？\n理由：${reasonText}\n描述：${description || "无描述"}`)) {
+                return;
+            }
+
+            // 获取当前日期
+            const today = new Date();
+            const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+            // 添加到历史记录
+            pointsHistory.unshift({
+                date: dateStr,
+                type: 'deduct',
+                reason: reasonText,
+                description: description,
+                points: -points
+            });
+
+            // 更新总积分（减少）
+            totalPoints -= points;
+
+            // 保存数据
+            saveData();
+
+            // 更新显示
+            updateTotalPoints();
+            updateHistory();
+            initCalendar();
+            updateChart();
+
+            // 重置表单
+            document.getElementById('deduct-description').value = '';
+            document.getElementById('deduct-points').value = '5';
+
+            // 显示成功消息
+            alert(`已扣除 ${points} 积分！`);
+        });
+
+        // 显示/隐藏添加奖励表单
+        document.getElementById('show-reward-form').addEventListener('click', function() {
+            const form = document.getElementById('add-reward-form');
+            form.classList.toggle('active');
+        });
+
+        // 添加自定义奖励
+        document.getElementById('add-custom-reward').addEventListener('click', function() {
+            const name = document.getElementById('reward-name').value.trim();
+            const description = document.getElementById('reward-description').value.trim();
+            const cost = parseInt(document.getElementById('reward-cost').value);
+
+            if (!name || isNaN(cost) || cost <= 0) {
+                alert('请输入有效的奖励名称和积分值！');
+                return;
+            }
+
+            // 保存到localStorage
+            let rewards = JSON.parse(localStorage.getItem('customRewards') || '[]');
+            rewards.unshift({
+                name: name,
+                description: description || '无描述',
+                cost: cost
+            });
+            localStorage.setItem('customRewards', JSON.stringify(rewards));
+
+            // 更新奖励列表
+            updateRewardsList();
+
+            // 清空表单
+            document.getElementById('reward-name').value = '';
+            document.getElementById('reward-description').value = '';
+            document.getElementById('reward-cost').value = '100';
+
+            // 隐藏表单
+            document.getElementById('add-reward-form').classList.remove('active');
+
+            alert(`成功添加奖励：${name}`);
+        });
+
+        // 更新奖励列表
+        function updateRewardsList() {
+            const rewardsList = document.getElementById('rewards-list');
+
+            // 从localStorage加载自定义奖励
+            let customRewards = JSON.parse(localStorage.getItem('customRewards') || '[]');
+
+            // 默认奖励
+            const defaultRewards = [
+                { name: '初始奖励', description: 'secret', cost: 300 }
+            ];
+
+            // 合并奖励列表
+            const allRewards = [...customRewards, ...defaultRewards];
+
+            if (allRewards.length === 0) {
+                rewardsList.innerHTML = `
+                    <div class="empty-state" style="padding: 20px;">
+                        <i class="fas fa-gift"></i>
+                        <p>暂无奖励</p>
+                        <p>添加自定义奖励开始兑换</p>
+                    </div>
+                `;
+                return;
+            }
+
+            rewardsList.innerHTML = '';
+
+            allRewards.forEach((reward, index) => {
+                const rewardItem = document.createElement('div');
+                rewardItem.className = 'reward-item';
+                rewardItem.dataset.index = index;
+
+                rewardItem.innerHTML = `
+                    <div class="reward-info">
+                        <h4>${reward.name}</h4>
+                        <p>${reward.description}</p>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div class="reward-cost">${reward.cost} 积分</div>
+                        <button class="btn btn-secondary exchange-reward-btn">
+                            <i class="fas fa-gift"></i> 兑换
+                        </button>
+                    </div>
+                `;
+
+                rewardsList.appendChild(rewardItem);
+            });
+
+            // 添加兑换事件监听
+            document.querySelectorAll('.exchange-reward-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const rewardItem = this.closest('.reward-item');
+                    const index = parseInt(rewardItem.dataset.index);
+
+                    // 获取奖励列表
+                    let customRewards = JSON.parse(localStorage.getItem('customRewards') || '[]');
+                    const defaultRewards = [
+                        { name: '初始奖励', description: 'secret', cost: 300 }
+                    ];
+                    const allRewards = [...customRewards, ...defaultRewards];
+
+                    exchangeReward(allRewards[index]);
+                });
+            });
+        }
+
+        // 兑换奖励
+        function exchangeReward(reward) {
+            if (totalPoints < reward.cost) {
+                alert(`积分不足！当前积分：${totalPoints}，需要：${reward.cost}`);
+                return;
+            }
+
+            if (!confirm(`确定要兑换 "${reward.name}" 吗？将消耗 ${reward.cost} 积分。`)) {
+                return;
+            }
+
+            // 获取当前日期
+            const today = new Date();
+            const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+            // 添加到历史记录
+            pointsHistory.unshift({
+                date: dateStr,
+                type: 'exchange',
+                reason: '兑换奖励',
+                description: `兑换${reward.name}`,
+                points: -reward.cost
+            });
+
+            // 更新总积分
+            totalPoints -= reward.cost;
+
+            // 保存数据
+            saveData();
+
+            // 更新显示
+            updateTotalPoints();
+            updateHistory();
+            updateChart();
+
+            // 显示成功消息
+            alert(`成功兑换 ${reward.name}！消耗 ${reward.cost} 积分。`);
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 加载数据
+            loadData();
+
+            // 注册Service Worker（PWA支持）
+            if ('serviceWorker' in navigator) {
+                const swCode = `
+                    const CACHE_NAME = 'points-manager-v1';
+                    self.addEventListener('install', e => {
+                        e.waitUntil(caches.open(CACHE_NAME));
+                    });
+                    self.addEventListener('fetch', e => {
+                        e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
+                    });
+                `;
+
+                const blob = new Blob([swCode], {type: 'application/javascript'});
+                const swURL = URL.createObjectURL(blob);
+
+                navigator.serviceWorker.register(swURL)
+                    .then(() => console.log('Service Worker 已注册'))
+                    .catch(err => console.log('Service Worker 注册失败:', err));
+            }
+
+            // 添加自动保存
+            setInterval(function() {
+                if (document.hasFocus()) {
+                    saveData();
+                }
+            }, 30000);
+
+            // 页面关闭前保存
+            window.addEventListener('beforeunload', function() {
+                saveData();
+            });
+
+            // 添加键盘快捷键
+            document.addEventListener('keydown', function(e) {
+                // Ctrl+S 保存
+                if (e.ctrlKey && e.key === 's') {
+                    e.preventDefault();
+                    saveData();
+                    alert('数据已保存！');
+                }
+
+                // Esc 关闭模态框
+                if (e.key === 'Escape') {
+                    const modal = document.querySelector('.modal-overlay');
+                    if (modal) {
+                        document.body.removeChild(modal);
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
